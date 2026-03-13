@@ -1,0 +1,11 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.crt
+*.log
+node_modules/
+vendor/
