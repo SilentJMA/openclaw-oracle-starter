@@ -7,69 +7,31 @@
 ![Open WebUI](https://img.shields.io/badge/ui-Open%20WebUI-2563EB?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-16A34A?style=flat-square)
 
-OpenClaw Oracle Starter is a one-command deployment kit for bringing up a personal OpenClaw server on a fresh Oracle Ubuntu VM.
+OpenClaw Oracle Starter is a deployment kit for standing up a full personal OpenClaw server on a fresh Oracle Cloud Ubuntu VM.
 
-It is inspired by the sharp, practical energy of [HKUDS/nanobot](https://github.com/HKUDS/nanobot), but focused on a real self-hosted assistant stack: public HTTPS, Telegram, Open WebUI, OpenClaw Gateway, Kilo Free, browser fallback, and production-style service wiring.
+It is inspired by the fast, builder-friendly feel of [HKUDS/nanobot](https://github.com/HKUDS/nanobot), but aimed at a practical self-hosted assistant stack with public HTTPS, Telegram access, Open WebUI, OpenClaw Gateway, Kilo Free, and browser fallback for tougher websites.
 
-## What you get
+## Highlights
 
+- One-script Oracle bootstrap with [`install.sh`](./install.sh)
 - Open WebUI at `/`
 - OpenClaw Gateway at `/gateway`
-- Kilo Free as the default model
 - Telegram bot support
+- Kilo Free as the default model
 - Brave-powered `web_search`
-- Chromium browser fallback for JS-heavy or anti-bot websites like LinkedIn
-- Nginx reverse proxy with Let's Encrypt HTTPS
-- dedicated `openclaw` Linux user
+- Chromium browser fallback for JS-heavy and anti-bot pages
 - env-backed secrets instead of plain config secrets
+- Nginx + Let's Encrypt HTTPS
 
-## Why this repo
+## Repo layout
 
-- Fast bootstrap: start from a blank Oracle VM and get a usable assistant online quickly
-- Practical defaults: HTTPS, auth, browser fallback, and Telegram-friendly output rules
-- Clean operations: systemd services, Dockerized Open WebUI, dedicated runtime user
-- Easy to extend: skills, prompts, channels, automations, and model changes all fit naturally
-
-## Architecture
-
-The installer sets up:
-
-- `openclaw` as a dedicated runtime user
-- Open WebUI and Ollama with Docker Compose under `/opt/openclaw-stack`
-- OpenClaw state under `/home/openclaw/.openclaw`
-- OpenClaw Gateway as a systemd service
-- headless Chromium as a user-scoped systemd service for browser automation
-- Nginx as the public reverse proxy
-- Certbot for HTTPS
-
-## Included files
-
-- [`install.sh`](./install.sh): end-to-end server bootstrap script
-- [`OPENCLAW_REPO_DESCRIPTION.md`](./OPENCLAW_REPO_DESCRIPTION.md): reusable repo description / intro copy
-- [`.env.example`](./.env.example): example installer environment
-
-## Requirements
-
-- A fresh Oracle Cloud Ubuntu server
-- A DNS record pointed at the server
-- Oracle security rules allowing inbound `80` and `443`
-- SSH access as a sudo-capable user
-- A Kilo API key
-
-Optional but recommended:
-
-- Telegram bot token
-- Brave Search API key
-- Firecrawl API key
+- [`install.sh`](./install.sh): full Oracle server setup script
+- [`.env.example`](./.env.example): installer variables template
+- [`docs/installation.md`](./docs/installation.md): step-by-step install and expected outcomes
+- [`docs/materials.md`](./docs/materials.md): official source links for every major component
+- [`OPENCLAW_REPO_DESCRIPTION.md`](./OPENCLAW_REPO_DESCRIPTION.md): reusable project description copy
 
 ## Quick start
-
-1. Clone the repo onto your Oracle server.
-2. Copy `.env.example` to a real env file.
-3. Fill in the required values.
-4. Run the installer as root.
-
-Example:
 
 ```bash
 git clone git@github.com:SilentJMA/openclaw-oracle-starter.git
@@ -78,17 +40,13 @@ cp .env.example .env
 sudo bash -c 'set -a; source .env; ./install.sh'
 ```
 
-## Installer usage
-
-The installer reads configuration from environment variables.
-
-Required:
+Required variables:
 
 - `DOMAIN`
 - `EMAIL`
 - `KILO_API_KEY`
 
-Optional:
+Common optional variables:
 
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_ALLOW_FROM`
@@ -99,63 +57,41 @@ Optional:
 - `GATEWAY_BASIC_AUTH_PASS`
 - `OPENWEBUI_SECRET_KEY`
 
-### Example `.env`
+## What the installer sets up
 
-```bash
-DOMAIN=claw.example.com
-EMAIL=you@example.com
-KILO_API_KEY=replace_me
+1. Base packages, Docker, Node.js, Nginx, Certbot, and Chromium
+2. A dedicated `openclaw` Linux user
+3. Open WebUI and Ollama under `/opt/openclaw-stack`
+4. OpenClaw Gateway under `/home/openclaw/.openclaw`
+5. Telegram, Brave search, Kilo Free, and browser fallback defaults
+6. systemd services for both the gateway and browser sidecar
+7. Nginx routing for `/` and `/gateway`
+8. HTTPS certificates with automatic renewal
 
-TELEGRAM_BOT_TOKEN=
-TELEGRAM_ALLOW_FROM=
-BRAVE_API_KEY=
-FIRECRAWL_API_KEY=
-
-OPENCLAW_GATEWAY_TOKEN=
-GATEWAY_BASIC_AUTH_USER=admin
-GATEWAY_BASIC_AUTH_PASS=
-OPENWEBUI_SECRET_KEY=
-```
-
-## What `install.sh` does
-
-1. Installs system packages, Docker, Node.js, Nginx, Certbot, and Chromium
-2. Creates the dedicated `openclaw` user
-3. Starts Open WebUI and Ollama with Docker
-4. Installs OpenClaw globally
-5. Writes OpenClaw config, workspace instructions, and env-backed secrets
-6. Configures Telegram, Brave search, Kilo Free, and browser fallback
-7. Creates systemd services for the gateway and browser sidecar
-8. Configures Nginx for `/` and `/gateway`
-9. Issues HTTPS certificates with Let's Encrypt
-10. Prints the final URLs and gateway auth details
-
-## After install
-
-Expected endpoints:
-
-- `https://YOUR_DOMAIN/`
-- `https://YOUR_DOMAIN/gateway/#token=...`
-
-Expected runtime locations:
+## Runtime layout
 
 - Open WebUI stack: `/opt/openclaw-stack`
 - OpenClaw state: `/home/openclaw/.openclaw`
 - Gateway service: `/etc/systemd/system/openclaw-gateway.service`
 - Browser service: `/home/openclaw/.config/systemd/user/openclaw-browser.service`
 
+## Documentation
+
+- Setup guide: [`docs/installation.md`](./docs/installation.md)
+- Materials and official links: [`docs/materials.md`](./docs/materials.md)
+
 ## Notes
 
-- Firecrawl is included as an env slot in the installer flow, but depending on the OpenClaw version you install, you may need to confirm the exact supported config shape before enabling its full config block.
-- Browser fallback is the heavy-duty path for anti-bot and JS-heavy pages.
-- Telegram output is tuned for concise, cleaner replies instead of duplicated streaming previews.
+- Browser fallback is the heavy-duty path for LinkedIn-style sites and anti-bot pages.
+- Firecrawl is included as an env slot in the installer flow. Depending on the exact OpenClaw build, you may need to confirm the supported config shape before enabling it in config.
+- The workspace instructions created by the installer are tuned for concise Telegram answers and better long-output formatting.
 
 ## Security
 
 - Do not commit real `.env` files
 - Do not commit API keys, SSH keys, or passwords
-- Rotate gateway tokens and bot tokens if they were ever exposed
-- Keep Oracle ingress rules limited to the ports you actually use
+- Keep Oracle ingress rules limited to the ports you actually need
+- Rotate gateway and bot secrets if they were ever exposed
 
 ## License
 
