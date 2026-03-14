@@ -15,6 +15,7 @@ Recommended extras:
 - Telegram bot token
 - Brave Search API key
 - Firecrawl API key
+- n8n host and API key if you plan to use `n8n-as-code`
 
 ## Step 1: clone the repo
 
@@ -35,6 +36,7 @@ Fill in at least:
 DOMAIN=claw.example.com
 EMAIL=you@example.com
 KILO_API_KEY=replace_me
+ENABLE_N8N_AS_CODE=true
 ```
 
 Optional values:
@@ -44,6 +46,7 @@ TELEGRAM_BOT_TOKEN=
 TELEGRAM_ALLOW_FROM=
 BRAVE_API_KEY=
 FIRECRAWL_API_KEY=
+ENABLE_N8N_AS_CODE=true
 OPENCLAW_GATEWAY_TOKEN=
 GATEWAY_BASIC_AUTH_USER=admin
 GATEWAY_BASIC_AUTH_PASS=
@@ -77,12 +80,20 @@ sudo -u openclaw -H bash -lc 'source /home/openclaw/.openclaw/.env && openclaw g
 docker ps
 ```
 
+If you enabled `n8n-as-code`, finish the OpenClaw-side bootstrap:
+
+```bash
+sudo -u openclaw -H openclaw n8nac:setup
+sudo systemctl restart openclaw-gateway.service
+```
+
 ## Step 5: post-install tasks
 
 - Verify Oracle security rules are correct
 - Log into Open WebUI and confirm Kilo Free is available
 - Test the public gateway URL
 - Test Telegram if configured
+- Run the `n8n-as-code` setup wizard if you enabled it
 - Rotate any secrets if this was done on a shared machine
 
 ## Troubleshooting notes
@@ -90,6 +101,7 @@ docker ps
 - If the gateway does not start, run `openclaw doctor`
 - If HTTPS fails, verify the domain points to the server and ports `80/443` are open
 - If LinkedIn-style pages fail in `web_search`, use the browser fallback path
+- If `n8n-as-code` needs a clean reset, remove `~/.openclaw/n8nac` and rerun `openclaw n8nac:setup`
 - If Telegram behaves oddly, inspect:
 
 ```bash

@@ -13,6 +13,17 @@ This file maps each major part of the stack to the official docs or primary sour
 - OpenClaw tools overview:
   [https://docs.openclaw.ai/tools](https://docs.openclaw.ai/tools)
 
+## n8n workflow integration
+
+- n8n-as-code repository:
+  [https://github.com/EtienneLescot/n8n-as-code](https://github.com/EtienneLescot/n8n-as-code)
+- n8n-as-code OpenClaw usage guide:
+  [https://n8nascode.dev/docs/usage/openclaw/](https://n8nascode.dev/docs/usage/openclaw/)
+- n8n-as-code getting started:
+  [https://n8nascode.dev/docs/getting-started/](https://n8nascode.dev/docs/getting-started/)
+- n8n official docs:
+  [https://docs.n8n.io/](https://docs.n8n.io/)
+
 ## Telegram channel
 
 - OpenClaw Telegram docs:

@@ -20,6 +20,7 @@ It is inspired by the fast, builder-friendly feel of [HKUDS/nanobot](https://git
 - Kilo Free as the default model
 - Brave-powered `web_search`
 - Chromium browser fallback for JS-heavy and anti-bot pages
+- Optional `n8n-as-code` plugin install for n8n workflow work inside OpenClaw
 - env-backed secrets instead of plain config secrets
 - Nginx + Let's Encrypt HTTPS
 
@@ -29,6 +30,7 @@ It is inspired by the fast, builder-friendly feel of [HKUDS/nanobot](https://git
 - [`.env.example`](./.env.example): installer variables template
 - [`docs/installation.md`](./docs/installation.md): step-by-step install and expected outcomes
 - [`docs/materials.md`](./docs/materials.md): official source links for every major component
+- [`docs/n8n-as-code.md`](./docs/n8n-as-code.md): OpenClaw + n8n-as-code setup and workflow commands
 - [`OPENCLAW_REPO_DESCRIPTION.md`](./OPENCLAW_REPO_DESCRIPTION.md): reusable project description copy
 
 ## Quick start
@@ -48,6 +50,7 @@ Required variables:
 
 Common optional variables:
 
+- `ENABLE_N8N_AS_CODE`
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_ALLOW_FROM`
 - `BRAVE_API_KEY`
@@ -64,9 +67,10 @@ Common optional variables:
 3. Open WebUI and Ollama under `/opt/openclaw-stack`
 4. OpenClaw Gateway under `/home/openclaw/.openclaw`
 5. Telegram, Brave search, Kilo Free, and browser fallback defaults
-6. systemd services for both the gateway and browser sidecar
-7. Nginx routing for `/` and `/gateway`
-8. HTTPS certificates with automatic renewal
+6. Optional `n8n-as-code` OpenClaw plugin install
+7. systemd services for both the gateway and browser sidecar
+8. Nginx routing for `/` and `/gateway`
+9. HTTPS certificates with automatic renewal
 
 ## Runtime layout
 
@@ -79,10 +83,12 @@ Common optional variables:
 
 - Setup guide: [`docs/installation.md`](./docs/installation.md)
 - Materials and official links: [`docs/materials.md`](./docs/materials.md)
+- n8n workflow integration: [`docs/n8n-as-code.md`](./docs/n8n-as-code.md)
 
 ## Notes
 
 - Browser fallback is the heavy-duty path for LinkedIn-style sites and anti-bot pages.
+- `n8n-as-code` is installed by the bootstrap script when `ENABLE_N8N_AS_CODE=true`, then finished with `openclaw n8nac:setup`.
 - Firecrawl is included as an env slot in the installer flow. Depending on the exact OpenClaw build, you may need to confirm the supported config shape before enabling it in config.
 - The workspace instructions created by the installer are tuned for concise Telegram answers and better long-output formatting.
 

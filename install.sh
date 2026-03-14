@@ -58,6 +58,7 @@ main() {
   local webui_secret="${OPENWEBUI_SECRET_KEY:-$(rand_text)}"
   local gateway_basic_user="${GATEWAY_BASIC_AUTH_USER:-admin}"
   local gateway_basic_pass="${GATEWAY_BASIC_AUTH_PASS:-$(rand_text)}"
+  local enable_n8n_as_code="${ENABLE_N8N_AS_CODE:-true}"
   local telegram_allow_from="${TELEGRAM_ALLOW_FROM:-}"
   local telegram_bot_token="${TELEGRAM_BOT_TOKEN:-}"
   local brave_api_key="${BRAVE_API_KEY:-}"
@@ -342,6 +343,18 @@ EOF
   systemctl daemon-reload
   systemctl enable --now openclaw-gateway.service
 
+  if [[ "${enable_n8n_as_code}" == "true" ]]; then
+    if su - "${openclaw_user}" -s /bin/bash -c \
+      "HOME=${openclaw_home} openclaw plugins list 2>/dev/null | grep -Fq '@n8n-as-code/openclaw-plugin'"; then
+      log "n8n-as-code OpenClaw plugin already installed"
+    else
+      log "Installing n8n-as-code OpenClaw plugin"
+      su - "${openclaw_user}" -s /bin/bash -c \
+        "HOME=${openclaw_home} openclaw plugins install @n8n-as-code/openclaw-plugin"
+      systemctl restart openclaw-gateway.service
+    fi
+  fi
+
   log "Writing Nginx config"
   htpasswd -bc /etc/nginx/.htpasswd-openclaw-gateway "${gateway_basic_user}" "${gateway_basic_pass}"
   write_file "/etc/nginx/sites-available/openclaw.conf" <<EOF
@@ -431,6 +444,10 @@ Notes:
 - Oracle Cloud security lists / NSGs must allow inbound 80 and 443.
 - Firecrawl is env-ready but only activates once FIRECRAWL_API_KEY is provided.
 - Telegram only starts cleanly if TELEGRAM_BOT_TOKEN is set.
+- If n8n-as-code was installed, finish its workspace bootstrap as the openclaw user:
+    sudo -u ${openclaw_user} -H openclaw n8nac:setup
+  Then reload the gateway:
+    sudo systemctl restart openclaw-gateway.service
 EOF
 }
 
