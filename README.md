@@ -9,7 +9,15 @@
 
 OpenClaw Oracle Starter is a deployment kit for standing up a full personal OpenClaw server on a fresh Oracle Cloud Ubuntu VM.
 
-It is inspired by the fast, builder-friendly feel of [HKUDS/nanobot](https://github.com/HKUDS/nanobot), but aimed at a practical self-hosted assistant stack with public HTTPS, Telegram access, Open WebUI, OpenClaw Gateway, Kilo Free, and browser fallback for tougher websites.
+It is inspired by the fast, builder-friendly feel of [HKUDS/nanobot](https://github.com/HKUDS/nanobot), but aimed at a practical self-hosted assistant stack with OpenClaw Gateway, Open WebUI, Telegram access, Kilo Free, and browser fallback for tougher websites.
+
+The repo is now documented against the official [OpenClaw Oracle Cloud guide](https://docs.openclaw.ai/platforms/oracle). That official guide recommends a Tailscale-first, loopback-only gateway on Oracle Always Free ARM. This starter keeps that baseline in mind, but extends it with an opinionated public web stack for people who also want:
+
+- Open WebUI at `/`
+- a public `/gateway`
+- Nginx and Let's Encrypt
+- Telegram bot access
+- optional `n8n-as-code`
 
 ## Highlights
 
@@ -23,6 +31,29 @@ It is inspired by the fast, builder-friendly feel of [HKUDS/nanobot](https://git
 - Optional `n8n-as-code` plugin install for n8n workflow work inside OpenClaw
 - env-backed secrets instead of plain config secrets
 - Nginx + Let's Encrypt HTTPS
+
+## Official Oracle baseline
+
+The upstream OpenClaw Oracle doc recommends this baseline:
+
+1. Create an Oracle Always Free ARM VM (`VM.Standard.A1.Flex`, Ubuntu 24.04).
+2. Install Tailscale and enable `tailscale up --ssh`.
+3. Install OpenClaw directly on the VM.
+4. Keep `gateway.bind=loopback`.
+5. Use `gateway.auth.mode=token`.
+6. Expose access through Tailscale Serve instead of public Internet ingress.
+7. Lock Oracle VCN ingress down after Tailscale is working.
+
+Official reference:
+- [OpenClaw Oracle Cloud](https://docs.openclaw.ai/platforms/oracle)
+
+This repo differs on purpose:
+
+- It keeps the gateway on loopback and token auth, matching the official guidance.
+- It also adds Nginx, HTTPS, and public access for people who want browser access without depending only on Tailscale.
+- It adds Open WebUI, Telegram, Brave web search, browser fallback, and `n8n-as-code`.
+
+If you want the strictest security posture, follow the official Tailscale-only access pattern first, then add public exposure only if you actually need it.
 
 ## Repo layout
 
@@ -41,6 +72,10 @@ cd openclaw-oracle-starter
 cp .env.example .env
 sudo bash -c 'set -a; source .env; ./install.sh'
 ```
+
+For a Tailscale-first deployment, read the official Oracle guide before exposing anything publicly:
+
+- [OpenClaw Oracle Cloud guide](https://docs.openclaw.ai/platforms/oracle)
 
 Required variables:
 
@@ -72,6 +107,24 @@ Common optional variables:
 8. Nginx routing for `/` and `/gateway`
 9. HTTPS certificates with automatic renewal
 
+## Access models
+
+You can use this repo in two ways:
+
+### 1. Official-style private access
+
+- Keep Oracle ingress tight
+- Prefer Tailscale for remote admin access
+- Keep the gateway loopback-only with token auth
+- Use SSH or Tailscale to reach the Control UI
+
+### 2. Public web stack
+
+- Use a domain, Nginx, and Let's Encrypt
+- Expose Open WebUI and `/gateway` publicly
+- Add extra auth layers at Nginx and in OpenClaw
+- Be more deliberate about Oracle security rules and credential rotation
+
 ## Runtime layout
 
 - Open WebUI stack: `/opt/openclaw-stack`
@@ -87,6 +140,7 @@ Common optional variables:
 
 ## Notes
 
+- The official OpenClaw Oracle guide is Tailscale-first and more conservative than this repo's default public-web setup.
 - Browser fallback is the heavy-duty path for LinkedIn-style sites and anti-bot pages.
 - `n8n-as-code` is installed by the bootstrap script when `ENABLE_N8N_AS_CODE=true`, then finished with `openclaw n8nac:setup`.
 - Firecrawl is included as an env slot in the installer flow. Depending on the exact OpenClaw build, you may need to confirm the supported config shape before enabling it in config.
@@ -94,6 +148,7 @@ Common optional variables:
 
 ## Security
 
+- The upstream recommendation is: loopback gateway + token auth + Tailscale Serve + locked-down Oracle VCN.
 - Do not commit real `.env` files
 - Do not commit API keys, SSH keys, or passwords
 - Keep Oracle ingress rules limited to the ports you actually need

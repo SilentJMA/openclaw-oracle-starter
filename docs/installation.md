@@ -2,6 +2,12 @@
 
 This guide explains how to use `install.sh` to bring up the full OpenClaw Oracle stack on a fresh Ubuntu VM.
 
+The official OpenClaw Oracle guide recommends a Tailscale-first deployment with the gateway bound to loopback and remote access provided by Tailscale Serve:
+
+- [OpenClaw Oracle Cloud guide](https://docs.openclaw.ai/platforms/oracle)
+
+This repo goes further by layering in Open WebUI, Nginx, HTTPS, Telegram, browser fallback, and optional `n8n-as-code`.
+
 ## Prerequisites
 
 - Oracle Cloud Ubuntu server
@@ -16,6 +22,11 @@ Recommended extras:
 - Brave Search API key
 - Firecrawl API key
 - n8n host and API key if you plan to use `n8n-as-code`
+
+Recommended if you want to follow the official Oracle security model first:
+
+- Tailscale account
+- a plan for keeping the gateway private until Tailscale access works
 
 ## Step 1: clone the repo
 
@@ -59,7 +70,23 @@ OPENWEBUI_SECRET_KEY=
 sudo bash -c 'set -a; source .env; ./install.sh'
 ```
 
-## Step 4: verify the result
+## Step 4: choose your access model
+
+### Official-style secure baseline
+
+- Keep `gateway.bind` on loopback
+- Keep token auth enabled
+- Use Tailscale or SSH tunneling for admin access
+- Avoid opening public Oracle ingress until you need it
+
+### Public web setup from this repo
+
+- Use your domain and Let's Encrypt
+- Expose Open WebUI and `/gateway`
+- Protect `/gateway` with token auth and optional Nginx auth
+- Review Oracle ingress carefully
+
+## Step 5: verify the result
 
 Expected public endpoints:
 
@@ -87,7 +114,7 @@ sudo -u openclaw -H openclaw n8nac:setup
 sudo systemctl restart openclaw-gateway.service
 ```
 
-## Step 5: post-install tasks
+## Step 6: post-install tasks
 
 - Verify Oracle security rules are correct
 - Log into Open WebUI and confirm Kilo Free is available
@@ -95,6 +122,13 @@ sudo systemctl restart openclaw-gateway.service
 - Test Telegram if configured
 - Run the `n8n-as-code` setup wizard if you enabled it
 - Rotate any secrets if this was done on a shared machine
+
+If you want to move closer to the official Oracle doc after installation:
+
+- add Tailscale
+- keep the gateway private on loopback
+- prefer Tailscale Serve or SSH tunnel for admin access
+- reduce Oracle ingress to only what you still need
 
 ## Troubleshooting notes
 

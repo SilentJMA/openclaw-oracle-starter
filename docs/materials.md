@@ -6,6 +6,8 @@ This file maps each major part of the stack to the official docs or primary sour
 
 - OpenClaw docs home:
   [https://docs.openclaw.ai/](https://docs.openclaw.ai/)
+- OpenClaw Oracle Cloud guide:
+  [https://docs.openclaw.ai/platforms/oracle](https://docs.openclaw.ai/platforms/oracle)
 - OpenClaw gateway configuration:
   [https://docs.openclaw.ai/gateway/configuration](https://docs.openclaw.ai/gateway/configuration)
 - OpenClaw gateway runbook:
