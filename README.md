@@ -1,70 +1,63 @@
 # OpenClaw Oracle Starter
 
-[![Private Repo Ready](https://img.shields.io/badge/repo-private_ready-111111?style=flat-square)](https://github.com/SilentJMA/openclaw-oracle-starter)
 ![Oracle Cloud](https://img.shields.io/badge/platform-Oracle%20Cloud-F80000?style=flat-square)
 ![Ubuntu](https://img.shields.io/badge/os-Ubuntu%2024.04-E95420?style=flat-square)
 ![OpenClaw](https://img.shields.io/badge/stack-OpenClaw-0F172A?style=flat-square)
-![Open WebUI](https://img.shields.io/badge/ui-Open%20WebUI-2563EB?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-16A34A?style=flat-square)
 
-OpenClaw Oracle Starter is a deployment kit for standing up a full personal OpenClaw server on a fresh Oracle Cloud Ubuntu VM.
+This repository installs a self-hosted OpenClaw server on an Oracle Cloud Ubuntu VM.
 
-It is inspired by the fast, builder-friendly feel of [HKUDS/nanobot](https://github.com/HKUDS/nanobot), but aimed at a practical self-hosted assistant stack with OpenClaw Gateway, Open WebUI, Telegram access, Kilo Free, and browser fallback for tougher websites.
+It is for people who want one script that sets up:
 
-The repo is now documented against the official [OpenClaw Oracle Cloud guide](https://docs.openclaw.ai/platforms/oracle). That official guide recommends a Tailscale-first, loopback-only gateway on Oracle Always Free ARM. This starter keeps that baseline in mind, but extends it with an opinionated public web stack for people who also want:
+- OpenClaw Gateway
+- Open WebUI
+- HTTPS with Nginx and Let's Encrypt
+- Telegram access
+- Kilo Free as the default model
+- Brave web search
+- Browser fallback for sites that block basic fetch tools
+- Optional `n8n-as-code`
 
-- Open WebUI at `/`
-- a public `/gateway`
-- Nginx and Let's Encrypt
-- Telegram bot access
-- optional `n8n-as-code`
+## What this repository does
 
-## Highlights
+The installer sets up a working OpenClaw host with a dedicated `openclaw` user and a predictable file layout.
 
-- One-script Oracle bootstrap with [`install.sh`](./install.sh)
+It also prepares a public web path for:
+
 - Open WebUI at `/`
 - OpenClaw Gateway at `/gateway`
-- Telegram bot support
-- Kilo Free as the default model
-- Brave-powered `web_search`
-- Chromium browser fallback for JS-heavy and anti-bot pages
-- Optional `n8n-as-code` plugin install for n8n workflow work inside OpenClaw
-- env-backed secrets instead of plain config secrets
-- Nginx + Let's Encrypt HTTPS
 
-## Official Oracle baseline
+This is an opinionated setup. It extends the official Oracle deployment guide with a public web stack and extra integrations.
 
-The upstream OpenClaw Oracle doc recommends this baseline:
+## What this repository does not do
 
-1. Create an Oracle Always Free ARM VM (`VM.Standard.A1.Flex`, Ubuntu 24.04).
-2. Install Tailscale and enable `tailscale up --ssh`.
-3. Install OpenClaw directly on the VM.
-4. Keep `gateway.bind=loopback`.
-5. Use `gateway.auth.mode=token`.
-6. Expose access through Tailscale Serve instead of public Internet ingress.
-7. Lock Oracle VCN ingress down after Tailscale is working.
+- It does not create Oracle Cloud resources for you.
+- It does not create DNS records for you.
+- It does not issue API keys for you.
+- It does not hide the need to review your own security settings.
 
-Official reference:
-- [OpenClaw Oracle Cloud](https://docs.openclaw.ai/platforms/oracle)
+## Before you start
 
-This repo differs on purpose:
+You need:
 
-- It keeps the gateway on loopback and token auth, matching the official guidance.
-- It also adds Nginx, HTTPS, and public access for people who want browser access without depending only on Tailscale.
-- It adds Open WebUI, Telegram, Brave web search, browser fallback, and `n8n-as-code`.
+- An Oracle Cloud Ubuntu 24.04 VM
+- A domain name that points to the server
+- SSH access to the server
+- A Kilo API key
 
-If you want the strictest security posture, follow the official Tailscale-only access pattern first, then add public exposure only if you actually need it.
+You may also want:
 
-## Repo layout
+- A Telegram bot token
+- A Brave Search API key
+- An `n8n` instance and API key
 
-- [`install.sh`](./install.sh): full Oracle server setup script
-- [`.env.example`](./.env.example): installer variables template
-- [`docs/installation.md`](./docs/installation.md): step-by-step install and expected outcomes
-- [`docs/materials.md`](./docs/materials.md): official source links for every major component
-- [`docs/n8n-as-code.md`](./docs/n8n-as-code.md): OpenClaw + n8n-as-code setup and workflow commands
-- [`OPENCLAW_REPO_DESCRIPTION.md`](./OPENCLAW_REPO_DESCRIPTION.md): reusable project description copy
+Read the official Oracle guide first:
+
+- [OpenClaw on Oracle Cloud](https://docs.openclaw.ai/platforms/oracle)
 
 ## Quick start
+
+Clone the repository, create an environment file, review the values, and run the installer:
 
 ```bash
 git clone git@github.com:SilentJMA/openclaw-oracle-starter.git
@@ -73,17 +66,15 @@ cp .env.example .env
 sudo bash -c 'set -a; source .env; ./install.sh'
 ```
 
-For a Tailscale-first deployment, read the official Oracle guide before exposing anything publicly:
+## Required settings
 
-- [OpenClaw Oracle Cloud guide](https://docs.openclaw.ai/platforms/oracle)
-
-Required variables:
+Set these values in `.env` before you run the installer:
 
 - `DOMAIN`
 - `EMAIL`
 - `KILO_API_KEY`
 
-Common optional variables:
+Common optional settings:
 
 - `ENABLE_N8N_AS_CODE`
 - `TELEGRAM_BOT_TOKEN`
@@ -95,56 +86,88 @@ Common optional variables:
 - `GATEWAY_BASIC_AUTH_PASS`
 - `OPENWEBUI_SECRET_KEY`
 
-## What the installer sets up
+Use [`.env.example`](./.env.example) as the reference.
+
+## What gets installed
+
+The installer sets up:
 
 1. Base packages, Docker, Node.js, Nginx, Certbot, and Chromium
-2. A dedicated `openclaw` Linux user
-3. Open WebUI and Ollama under `/opt/openclaw-stack`
-4. OpenClaw Gateway under `/home/openclaw/.openclaw`
-5. Telegram, Brave search, Kilo Free, and browser fallback defaults
-6. Optional `n8n-as-code` OpenClaw plugin install
-7. systemd services for both the gateway and browser sidecar
-8. Nginx routing for `/` and `/gateway`
-9. HTTPS certificates with automatic renewal
+2. A dedicated `openclaw` user
+3. Open WebUI and Ollama
+4. OpenClaw Gateway
+5. Kilo Free as the default model
+6. Brave-powered web search
+7. Browser fallback for difficult websites
+8. Optional `n8n-as-code`
+9. System services for the gateway and browser sidecar
+10. HTTPS and certificate renewal
 
-## Access models
+## Access options
 
-You can use this repo in two ways:
+This repository supports two common ways to access the server.
 
-### 1. Official-style private access
+### Private access
 
-- Keep Oracle ingress tight
-- Prefer Tailscale for remote admin access
-- Keep the gateway loopback-only with token auth
-- Use SSH or Tailscale to reach the Control UI
+Use the official Oracle guide approach:
 
-### 2. Public web stack
+- keep the gateway on loopback
+- use token auth
+- use Tailscale or another private access layer
+- keep Oracle ingress limited
 
-- Use a domain, Nginx, and Let's Encrypt
-- Expose Open WebUI and `/gateway` publicly
-- Add extra auth layers at Nginx and in OpenClaw
-- Be more deliberate about Oracle security rules and credential rotation
+### Public access
 
-## Runtime layout
+This repository also supports a public HTTPS setup with:
+
+- Nginx
+- Let's Encrypt
+- Open WebUI at `/`
+- Gateway UI at `/gateway`
+
+If you use the public path, review your Oracle network rules and authentication settings carefully.
+
+## File layout
+
+Important paths after install:
 
 - Open WebUI stack: `/opt/openclaw-stack`
 - OpenClaw state: `/home/openclaw/.openclaw`
 - Gateway service: `/etc/systemd/system/openclaw-gateway.service`
 - Browser service: `/home/openclaw/.config/systemd/user/openclaw-browser.service`
 
-## Documentation
+## Repository layout
 
-- Setup guide: [`docs/installation.md`](./docs/installation.md)
-- Materials and official links: [`docs/materials.md`](./docs/materials.md)
-- n8n workflow integration: [`docs/n8n-as-code.md`](./docs/n8n-as-code.md)
+- [`install.sh`](./install.sh): main installer
+- [`.env.example`](./.env.example): environment variables template
+- [`docs/installation.md`](./docs/installation.md): installation steps and expected results
+- [`docs/materials.md`](./docs/materials.md): source links for the stack
+- [`docs/n8n-as-code.md`](./docs/n8n-as-code.md): `n8n-as-code` setup notes
+- [`OPENCLAW_REPO_DESCRIPTION.md`](./OPENCLAW_REPO_DESCRIPTION.md): short project description text
+
+## After install
+
+After the installer finishes, confirm:
+
+1. The domain resolves to the server
+2. HTTPS works
+3. Open WebUI loads
+4. The gateway loads
+5. The default model is `kilo-auto/free`
+6. Telegram works, if enabled
 
 ## Notes
 
-- The official OpenClaw Oracle guide is Tailscale-first and more conservative than this repo's default public-web setup.
-- Browser fallback is the heavy-duty path for LinkedIn-style sites and anti-bot pages.
-- `n8n-as-code` is installed by the bootstrap script when `ENABLE_N8N_AS_CODE=true`, then finished with `openclaw n8nac:setup`.
-- Firecrawl is included as an env slot in the installer flow. Depending on the exact OpenClaw build, you may need to confirm the supported config shape before enabling it in config.
-- The workspace instructions created by the installer are tuned for concise Telegram answers and better long-output formatting.
+- The official OpenClaw Oracle guide is more conservative than this repository. This project adds a public web stack by design.
+- Browser fallback is intended for JavaScript-heavy or anti-bot sites where simple fetch tools are not enough.
+- `n8n-as-code` is optional. If enabled, it still needs its own workspace setup after install.
+- Firecrawl can be prepared through environment values, but support depends on the OpenClaw build you install.
+
+## Documentation
+
+- [Installation guide](./docs/installation.md)
+- [Materials and source links](./docs/materials.md)
+- [`n8n-as-code` guide](./docs/n8n-as-code.md)
 
 ## License
 
