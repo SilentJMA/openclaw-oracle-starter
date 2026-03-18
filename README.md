@@ -14,7 +14,7 @@ It is for people who want one script that sets up:
 - HTTPS with Nginx and Let's Encrypt
 - Telegram access
 - Kilo Free as the default model
-- Web search (Brave by default, optional SearXNG via plugin)
+- Brave web search
 - Browser fallback for sites that block basic fetch tools
 - Optional `n8n-as-code`
 
@@ -49,7 +49,6 @@ You may also want:
 
 - A Telegram bot token
 - A Brave Search API key
-- A SearXNG instance (or Docker)
 - An `n8n` instance and API key
 
 Read the official Oracle guide first:
@@ -185,54 +184,6 @@ OpenClaw native `tools.web.search.provider` supports:
 | `grok` | `apiKey` | `XAI_API_KEY` | No |
 | `gemini` | `apiKey` | `GEMINI_API_KEY` | No |
 | `kimi` | `apiKey` | `KIMI_API_KEY` | No |
-
-### SearXNG plugin mode (no API keys)
-
-If you want web search without paid API keys, use SearXNG with the `claw-search` plugin.
-
-1. Run SearXNG on localhost:
-
-```bash
-docker run -d --name searxng --restart=always \
-  -p 127.0.0.1:8888:8080 \
-  -v /opt/searxng:/etc/searxng \
-  searxng/searxng:latest
-```
-
-2. Ensure JSON API is enabled in `/opt/searxng/settings.yml`:
-
-```yaml
-use_default_settings: true
-server:
-  limiter: false
-search:
-  formats:
-    - html
-    - json
-```
-
-3. Install plugin:
-
-```bash
-git clone https://github.com/binglius/claw-search.git ~/claw-search
-openclaw plugins install ~/claw-search
-```
-
-4. Restart gateway:
-
-```bash
-sudo systemctl restart openclaw-gateway.service
-```
-
-5. Verify:
-
-```bash
-curl "http://127.0.0.1:8888/search?q=openclaw&format=json"
-```
-
-Notes:
-- On systemd deployments that run as user `openclaw`, install the plugin into `/home/openclaw/.openclaw/extensions/claw-search` (or run plugin install as `openclaw`).
-- In this mode, OpenClaw can use `claw-search` tools for unlimited self-hosted web search.
 
 ## Notes
 
