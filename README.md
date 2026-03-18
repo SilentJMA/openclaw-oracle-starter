@@ -146,14 +146,6 @@ You can use this repo in two ways:
 - Firecrawl is included as an env slot in the installer flow. Depending on the exact OpenClaw build, you may need to confirm the supported config shape before enabling it in config.
 - The workspace instructions created by the installer are tuned for concise Telegram answers and better long-output formatting.
 
-## Security
-
-- The upstream recommendation is: loopback gateway + token auth + Tailscale Serve + locked-down Oracle VCN.
-- Do not commit real `.env` files
-- Do not commit API keys, SSH keys, or passwords
-- Keep Oracle ingress rules limited to the ports you actually need
-- Rotate gateway and bot secrets if they were ever exposed
-
 ## License
 
 MIT
