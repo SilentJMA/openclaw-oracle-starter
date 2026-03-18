@@ -88,6 +88,23 @@ Common optional settings:
 
 Use [`.env.example`](./.env.example) as the reference.
 
+## Telegram setup
+
+Telegram is the recommended chat channel for this stack.
+
+### 1. Create a bot
+
+1. Open Telegram and search for `@BotFather`
+2. Send `/newbot`
+3. Follow the prompts
+4. Copy the bot token
+
+Set the token in `.env`:
+
+```bash
+TELEGRAM_BOT_TOKEN=your_bot_token_here
+```
+
 ## What gets installed
 
 The installer sets up:
@@ -155,6 +172,18 @@ After the installer finishes, confirm:
 4. The gateway loads
 5. The default model is `kilo-auto/free`
 6. Telegram works, if enabled
+
+## Web search providers
+
+OpenClaw supports multiple web search providers.
+
+| Provider | Config fields | Env var fallback | Free |
+| --- | --- | --- | --- |
+| `brave` (default) | `apiKey` | `BRAVE_API_KEY` | No |
+| `tavily` | `apiKey` | `TAVILY_API_KEY` | No |
+| `jina` | `apiKey` | `JINA_API_KEY` | Free tier (10M tokens) |
+| `searxng` | `baseUrl` | `SEARXNG_BASE_URL` | Yes (self-hosted) |
+| `duckduckgo` | none | none | Yes |
 
 ## Notes
 
